@@ -2,6 +2,7 @@ package com.example.kontacts
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.icu.text.PluralRules
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -247,6 +248,7 @@ fun AddContactScreen(viewModel: ContactViewModel, navController: NavController) 
                     unfocusedTextColor = Color.Black
                 )
             )
+            Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = email,
                 onValueChange = { email = it },
