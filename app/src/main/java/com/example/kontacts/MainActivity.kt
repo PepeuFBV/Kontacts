@@ -38,9 +38,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -48,11 +53,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.thecontactsapp.R
+import com.example.kontacts.R
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,13 +69,19 @@ class MainActivity : ComponentActivity() {
         val viewModel: ContactViewModel by viewModels { ContactViewModelFactory(repository) }
 
         setContent {
-
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = "contactList") {
+                composable("contactList") { ContactListScreen(viewModel, navController) }
+                composable("addContact") { AddContactScreen(viewModel, navController) }
+            }
         }
     }
+
 }
 
 @Composable
 fun ContactItem(contact: Contact, onClick: () -> Unit) {
+
     Card(
         modifier = Modifier.fillMaxWidth()
             .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
@@ -90,12 +104,67 @@ fun ContactItem(contact: Contact, onClick: () -> Unit) {
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = contact.name)
     }
+
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ContactListScreen(viewModel: ContactViewModel, navController: NavController) {
+
+    val context = LocalContext.current.applicationContext
+
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                modifier = Modifier.height(48.dp),
+                title = {
+                    Box(
+                        modifier = Modifier.fillMaxHeight()
+                            .wrapContentHeight(Alignment.CenterVertically)
+                    ) {
+                        Text("Contacts", fontSize = 18.sp)
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { Toast.makeText(context, "Contacts", Toast.LENGTH_SHORT).show() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.contacticon),
+                            contentDescription = null
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PurpleMain,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(containerColor = PurpleMain, onClick = { navController.navigate("addContact")} ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Contact")
+            }
+        }
+    ) { paddingValues ->
+        val contacts by viewModel.allContacts.observeAsState(initial = emptyList())
+        LazyColumn(
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            itemsIndexed(contacts) { _, contact ->
+                ContactItem(contact = contact) {
+                    navController.navigate("contactDetail/${contact.id}")
+                }
+            }
+        }
+    }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactScreen(viewModel: ContactViewModel, navController: NavController) {
+
     val context = LocalContext.current.applicationContext
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -211,6 +280,7 @@ fun AddContactScreen(viewModel: ContactViewModel, navController: NavController) 
 }
 
 fun copyURIToInternalStorage(uri: Uri, context: Context, fileName: String): String? {
+
     val file = File(context.filesDir, fileName)
     return try {
         context.contentResolver.openInputStream(uri)?.use { input ->
@@ -223,4 +293,5 @@ fun copyURIToInternalStorage(uri: Uri, context: Context, fileName: String): Stri
         e.printStackTrace()
         null
     }
+
 }
