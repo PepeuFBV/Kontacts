@@ -32,7 +32,7 @@ class ContactViewModel(private val repository: ContactRepository): ViewModel() {
 }
 
 class ContactViewModelFactory(private val repository: ContactRepository): ViewModelProvider.Factory {
-    
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ContactViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
