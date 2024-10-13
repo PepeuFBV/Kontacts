@@ -371,9 +371,9 @@ fun ContactItem(contact: Contact, onClick: () -> Unit) {
                 modifier = Modifier.size(50.dp).clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = contact.name)
         }
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = contact.name)
     }
 
 }
