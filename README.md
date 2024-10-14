@@ -1,6 +1,6 @@
 # Kontacts application
 
-This is a simple application that allows you to manage your contacts; you can save a name, picture, phone number and email. You can add, edit and delete contacts.
+This is a simple application written in the Kotlin language that allows you to manage your contacts in which you can save a name, picture, phone number and email. You can also add, edit and delete contacts.
 
 ## Technologies used
 
